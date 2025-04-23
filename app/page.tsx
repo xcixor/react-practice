@@ -1,9 +1,21 @@
-import Image from "next/image";
+import Hero from "@/components/hero";
+import HeroClass from "@/components/hero.class";
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <p>Hello, world!</p>
-    </div>
+    <Hero
+      title="Welcome to Our Site"
+      subtitle="Discover amazing products and services"
+      imageUrl="/hero.jpg"
+      ctaText="Get Started"
+      ctaLink="#" 
+    />
+    // <HeroClass
+    //   title="Welcome to Our Site"
+    //   subtitle="Discover amazing products and services"
+    //   imageUrl="/hero.jpg"
+    //   ctaText="Get Started"
+    //   ctaLink="#"
+    // />
   );
 }
