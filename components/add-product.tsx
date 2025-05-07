@@ -1,8 +1,80 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { ImageOff, X, Loader, Loader2 } from "lucide-react";
+
+type ImageProps = {
+  src: string;
+  alt: string;
+  className?: string;
+};
+
+const ProductImage = ({ src, alt, className }: ImageProps) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setHasError(false);
+
+    if (!src || src === "") {
+      setIsLoading(false);
+      setHasError(true);
+      return;
+    }
+
+    const img = new Image();
+    img.src = src;
+
+    img.onload = () => {
+      setIsLoading(false);
+    };
+
+    img.onerror = () => {
+      setIsLoading(false);
+      setHasError(true);
+    };
+
+    // Cleanup function
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [src]);
+
+  return (
+    <div className={`relative ${className}`}>
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        </div>
+      )}
+
+      {hasError && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 p-4 text-center">
+          <ImageOff className="h-10 w-10 text-gray-400" />
+          <p className="mt-2 text-sm text-gray-500">Image not available</p>
+        </div>
+      )}
+
+      {!hasError && (
+        <img
+          src={src || "/placeholder-image.webp"}
+          alt={alt}
+          className={`h-full w-full object-cover ${
+            isLoading ? "invisible" : "visible"
+          }`}
+          onLoad={() => setIsLoading(false)}
+          onError={() => {
+            setIsLoading(false);
+            setHasError(true);
+          }}
+        />
+      )}
+    </div>
+  );
+};
 
 const AddProducts = () => {
-  // State to store our list of featured products
   const [products, setProducts] = useState([
     {
       id: 1,
@@ -30,17 +102,14 @@ const AddProducts = () => {
     },
   ]);
 
-  // State for the form fields
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
     image: "https://via.placeholder.com/150",
   });
 
-  // State to track which product is currently highlighted
   const [highlightedProduct, setHighlightedProduct] = useState(null);
 
-  // Handle form field changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewProduct({
@@ -49,7 +118,6 @@ const AddProducts = () => {
     });
   };
 
-  // Add a new product
   const handleAddProduct = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -64,7 +132,6 @@ const AddProducts = () => {
 
     setProducts([...products, newProductWithId]);
 
-    // Reset form
     setNewProduct({
       name: "",
       price: "",
@@ -72,9 +139,7 @@ const AddProducts = () => {
     });
   };
 
-  // Remove a product
   const handleRemoveProduct = (productId) => {
-    // Filter out the product with the matching ID
     const updatedProducts = products.filter(
       (product) => product.id !== productId,
     );
@@ -87,7 +152,6 @@ const AddProducts = () => {
         Featured Products
       </h2>
 
-      {/* Add Product Form */}
       <div className="mb-8 rounded-lg bg-white p-6 shadow-md">
         <h3 className="mb-4 text-xl font-semibold text-gray-700">
           Add New Product
@@ -159,7 +223,6 @@ const AddProducts = () => {
         </form>
       </div>
 
-      {/* Products Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {products.map((product) => (
           <div
@@ -171,28 +234,17 @@ const AddProducts = () => {
             onMouseLeave={() => setHighlightedProduct(null)}
           >
             <div className="relative">
-              <img
+              <ProductImage
                 src={product.image}
                 alt={product.name}
-                className="h-48 w-full object-cover"
+                className="h-48"
               />
               <button
                 onClick={() => handleRemoveProduct(product.id)}
-                className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white opacity-80 transition hover:opacity-100"
+                className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white opacity-80 transition hover:opacity-100"
                 title="Remove product"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <X className="h-5 w-5" />
               </button>
             </div>
             <div className="p-4">
